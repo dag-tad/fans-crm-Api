@@ -3,8 +3,8 @@ import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { BadRequestException, Injectable, NotFoundException, UseGuards } from '@nestjs/common';
 import { promisify } from 'util';
 
-import { UsersService } from 'src/users/users.service';
-import { CreateUserDto } from 'src/users/dtos/create-user.dto';
+import { UsersService } from './users.service';
+import { CreateUserDto } from './dtos/create-user.dto';
 
 const scrypt = promisify(_scrypt);
 
@@ -16,7 +16,7 @@ export class AuthService {
 
     constructor(private userService: UsersService) { }
 
-    async signUp(user: CreateUserDto) {
+    async signup(user: CreateUserDto) {
         const { email, password } = user;
         const _users = await this.userService.findByEmail(email);
 
@@ -26,7 +26,7 @@ export class AuthService {
 
         const salt = randomBytes(8).toString('hex');
         const hash = await scrypt(password, salt, 32) as Buffer;
-        const result = salt + '.' + hash.toString('hex');
+        const result = salt + '-' + hash.toString('hex');
 
         user.password = result;
         const newUser = await this.userService.create(user);

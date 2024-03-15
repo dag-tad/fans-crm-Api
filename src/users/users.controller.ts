@@ -12,6 +12,7 @@ export class UsersController {
     constructor(private service: UsersService, private authService: AuthService) { }
 
     @UseGuards(AuthGuard)
+    @Serialize(AuthDto)
     @Get('get-user/:id')
     getUser(@Param('id') id: string) {
         if (isNaN(Number(id))) {
@@ -21,6 +22,7 @@ export class UsersController {
     }
 
     @UseGuards(AuthGuard)
+    @Serialize(AuthDto)
     @Get('get-all')
     getAllUser() {
         return this.service.getAllUsers();
@@ -35,7 +37,7 @@ export class UsersController {
     @Serialize(AuthDto)
     @Post('signup')
     async signup(@Body() body: CreateUserDto) {
-        return await this.authService.signUp(body);
+        return await this.authService.signup(body);
     }
 
     @Serialize(AuthDto)

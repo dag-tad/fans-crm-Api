@@ -1,8 +1,10 @@
 import { Expose } from 'class-transformer';
 import { IsEmail, IsString } from 'class-validator';
-import { CreateUserDto } from './create-user.dto';
 
 export class AuthDto {
+    @Expose()
+    id?: number;
+
     @Expose()
     @IsString()
     name: string;
