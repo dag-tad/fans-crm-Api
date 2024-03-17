@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { BadRequestException, Headers, Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -26,6 +26,13 @@ export class UsersController {
     @Get('get-all')
     getAllUser() {
         return this.service.getAllUsers();
+    }
+
+    @UseGuards(AuthGuard)
+    @Serialize(AuthDto)
+    @Get('me')
+    getCurrentUser(@Headers() headers: any) {
+        return this.authService.findBytoken(headers.token);
     }
 
     @UseGuards(AuthGuard)

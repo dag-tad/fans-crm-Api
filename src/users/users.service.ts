@@ -2,6 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './users.entity';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { randomBytes, scrypt as _scrypt } from 'crypto';
+import { promisify } from 'util';
+
+const scrypt = promisify(_scrypt);
 
 @Injectable()
 export class UsersService {
@@ -23,6 +27,14 @@ export class UsersService {
         }
 
         return user;
+    }
+
+    async hashPassword(password: string){
+        const salt = randomBytes(8).toString('hex');
+        const hash = await scrypt(password, salt, 32) as Buffer;
+        const result = salt + '.' + hash.toString('hex');
+
+        return result
     }
 
     async create(user: CreateUserDto)/*: Promise<User> */ {

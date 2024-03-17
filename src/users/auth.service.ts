@@ -5,9 +5,10 @@ import { promisify } from 'util';
 
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { User } from './users.entity';
+
 
 const scrypt = promisify(_scrypt);
-
 @Injectable()
 export class AuthService {
     private _signToken = (email: string): string => {
@@ -24,11 +25,9 @@ export class AuthService {
             throw new BadRequestException('Email already exist')
         }
 
-        const salt = randomBytes(8).toString('hex');
-        const hash = await scrypt(password, salt, 32) as Buffer;
-        const result = salt + '-' + hash.toString('hex');
+        const hashPassword = await this.userService.hashPassword(password);
 
-        user.password = result;
+        user.password = hashPassword;
         const newUser = await this.userService.create(user);
 
         const token = this._signToken(newUser.email);
@@ -56,6 +55,16 @@ export class AuthService {
         const token = this._signToken(user.email);
 
         Object.assign(user, { token })
+
+        return user;
+    }
+
+    async findBytoken(token: string): Promise<User> {
+        const decoded = await jwt.verify(token, 'jwt-secret');
+        const email = decoded.email;
+        const user = await this.userService.findByEmail(email);
+
+        Object.assign(user, { token });
 
         return user;
     }
